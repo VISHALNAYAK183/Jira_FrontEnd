@@ -1,6 +1,47 @@
-import React from "react";
-
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate=useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "Y") {
+        // store output locally
+        localStorage.setItem("authData", JSON.stringify(data));
+
+        //alert(" Login Successful!");
+        navigate("/dashboard");
+        console.log("Login Response:", data);
+     
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6">
       {/* Card */}
@@ -14,7 +55,7 @@ export default function Login() {
         </p>
 
         {/* Login Form */}
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label className="block text-gray-200 text-sm font-semibold mb-2">
@@ -23,6 +64,8 @@ export default function Login() {
             <input
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-900 focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition"
               required
             />
@@ -36,17 +79,23 @@ export default function Login() {
             <input
               type="password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
               required
             />
           </div>
 
+          {/* Error Message */}
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-bold text-lg rounded-xl shadow-lg transition transform hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(236,72,153,0.7)]"
+            disabled={loading}
+            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-bold text-lg rounded-xl shadow-lg transition transform hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(236,72,153,0.7)] disabled:opacity-60"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
