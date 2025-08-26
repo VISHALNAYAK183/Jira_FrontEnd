@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 // helper to decode JWT
 function decodeJWT(token) {
   try {
@@ -15,8 +15,9 @@ export default function Dashboard() {
   const [orgData, setOrgData] = useState(null);      // API data
   const [decodedUser, setDecodedUser] = useState(null); // JWT decoded user
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  useEffect(() => {
+ useEffect(() => {
     const storedData = localStorage.getItem("authData");
     if (!storedData) return;
 
@@ -24,31 +25,20 @@ export default function Dashboard() {
     const token = parsed.token;
 
     const decoded = decodeJWT(token);
-    console.log("decode",decoded);
-    setDecodedUser(decoded); // store decoded user info
-    console.log("Decoded Token:", decoded);
+    setDecodedUser(decoded);
 
-    const orgId = decoded?.orgId;
-    if (!orgId) {
-      console.error("OrgId not found in token");
-      setLoading(false);
-      return;
+    if (decoded?.orgId) {
+      localStorage.setItem("orgId", decoded.orgId);
+      localStorage.setItem("designation", decoded.designation);
     }
 
-    fetch(`http://localhost:8080/dashboard/org/${orgId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    fetch(`http://localhost:8080/dashboard/org/${decoded?.orgId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.status === "Y") {
-          setOrgData(data);
-        } else {
-          console.error("Failed to fetch org:", data.message);
-        }
+        if (data.status === "Y") setOrgData(data);
       })
-      .catch((err) => console.error("API error:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -63,7 +53,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6">
       {orgData ? (
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-3xl p-12 text-center transform transition hover:scale-105">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-3xl p-12 text-center transform transition hover:scale-105"     onClick={() => navigate("/company")}>
           {/* Logo (dummy placeholder for now) */}
           <div className="flex justify-center mb-6">
             <img
