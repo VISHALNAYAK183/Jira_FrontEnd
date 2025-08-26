@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
- useEffect(() => {
+  useEffect(() => {
     const storedData = localStorage.getItem("authData");
     if (!storedData) return;
 
@@ -25,20 +25,36 @@ export default function Dashboard() {
     const token = parsed.token;
 
     const decoded = decodeJWT(token);
-    setDecodedUser(decoded);
-
-    if (decoded?.orgId) {
+    console.log("decode",decoded);
+    setDecodedUser(decoded); // store decoded user info
+    console.log("Decoded Token:", decoded);
+const orgId = decoded?.orgId;
+     if (decoded?.orgId) {
       localStorage.setItem("orgId", decoded.orgId);
       localStorage.setItem("designation", decoded.designation);
     }
+   
+    if (!orgId) {
+      console.error("OrgId not found in token");
+      setLoading(false);
+      return;
+    }
 
-    fetch(`http://localhost:8080/dashboard/org/${decoded?.orgId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    fetch(`http://localhost:8080/dashboard/org/${orgId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.status === "Y") setOrgData(data);
+        if (data.status === "Y") {
+          setOrgData(data);
+          console.log("orgvvvvvvvvv",data);
+        } else {
+          console.error("Failed to fetch org:", data.message);
+        }
       })
+      .catch((err) => console.error("API error:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -66,6 +82,7 @@ export default function Dashboard() {
           {/* Org Name from API */}
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4 drop-shadow-md">
             {orgData.orgName}
+            
           </h1>
 
           {/* User Info from Token */}

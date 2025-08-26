@@ -8,17 +8,16 @@ export default function CompanyPage() {
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem("authData"))?.token;
     const orgId = localStorage.getItem("orgId");
-
     if (!orgId || !token) return;
 
     fetch(`http://localhost:8080/dashboard/org/${orgId}/projects`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "Y") {
-          setProjects(data.projects);
-          setOrgName(data.organization);
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.status === "Y") {
+          setProjects(d.projects);
+          setOrgName(d.organization);
         }
       })
       .finally(() => setLoading(false));
@@ -36,39 +35,38 @@ export default function CompanyPage() {
     localStorage.getItem("designation")?.toLowerCase() === "orgadmin";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-10">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-4xl font-bold text-indigo-700">{orgName}</h1>
-        {isOrgAdmin && (
-          <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
-            + Add Project
-          </button>
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <h1 className="text-4xl font-bold text-indigo-700">{orgName}</h1>
+          {isOrgAdmin && (
+            <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
+              + Add Project
+            </button>
+          )}
+        </div>
 
-      {/* Project Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((proj) => (
-          <div
-            key={proj.id}
-            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition"
-          >
-            <h2 className="text-xl font-semibold text-gray-800">
-              {proj.name}
-            </h2>
-            <p className="text-gray-600 text-sm mt-2">{proj.description}</p>
-            <div className="mt-4 text-sm text-gray-700">
-              <p>
-                <strong>Manager:</strong> {proj.managerName}
-              </p>
-              <p>
-                <strong>Start:</strong> {proj.startDate} |{" "}
-                <strong>End:</strong> {proj.endDate}
-              </p>
+        {/* 3-column grid always */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((proj) => (
+            <div
+              key={proj.id}
+              className="border border-gray-300 rounded-xl p-6 bg-white shadow hover:shadow-lg transition"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {proj.name}
+              </h2>
+              <p className="text-gray-600 text-sm mb-4">{proj.description}</p>
+              <div className="text-sm text-gray-700 space-y-1">
+                <p><span className="font-medium">Manager:</span> {proj.managerName}</p>
+                <p><span className="font-medium">Start:</span> {proj.startDate}</p>
+                <p><span className="font-medium">End:</span> {proj.endDate}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
       </div>
     </div>
   );
