@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// helper to decode JWT
+
 function decodeJWT(token) {
   try {
     const payload = token.split(".")[1];
@@ -12,8 +12,8 @@ function decodeJWT(token) {
 }
 
 export default function Dashboard() {
-  const [orgData, setOrgData] = useState(null);      // API data
-  const [decodedUser, setDecodedUser] = useState(null); // JWT decoded user
+  const [orgData, setOrgData] = useState(null);      
+  const [decodedUser, setDecodedUser] = useState(null); 
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ export default function Dashboard() {
 
     const decoded = decodeJWT(token);
     console.log("decode",decoded);
-    setDecodedUser(decoded); // store decoded user info
+    setDecodedUser(decoded); 
     console.log("Decoded Token:", decoded);
 const orgId = decoded?.orgId;
      if (decoded?.orgId) {
