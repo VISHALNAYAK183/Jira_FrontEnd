@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CompanyPage() {
   const [projects, setProjects] = useState([]);
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
-
+   const navigate = useNavigate();
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem("authData"))?.token;
     const orgId = localStorage.getItem("orgId");
@@ -41,7 +42,7 @@ export default function CompanyPage() {
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-4xl font-bold text-indigo-700">{orgName}</h1>
           {isOrgAdmin && (
-            <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
+            <button onClick={()=>navigate("/AddProject")} className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
               + Add Project
             </button>
           )}
